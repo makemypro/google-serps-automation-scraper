@@ -1,0 +1,9 @@
+{
+    "manifest_version": 2,
+    "name": "Proxy Extension",
+    "version": "1.0",
+    "permissions": ["proxy"],
+    "background": {
+      "scripts": ["background.js"]
+    }
+  }

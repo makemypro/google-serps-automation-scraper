@@ -1,0 +1,67 @@
+version: "3.7"
+
+volumes:
+  static_volume:
+  media_volume:
+  letsencryptconf:
+  redis_data:
+
+networks:
+  chrome-network:
+
+services:
+  chrome:
+    build: .
+    restart: unless-stopped
+    volumes:
+        - .:/usr/src/app
+        - /dev/shm:/dev/shm
+        - /var/run/docker.sock:/var/run/docker.sock
+    container_name: chrome
+    ports:
+        - 5900:5900 #VNC
+        - 9222:9222 #Chrome Remote Debugging Port
+    privileged: false
+    command: /usr/src/app/bootstrap.sh
+    shm_size: 256m
+    networks:
+      - chrome-network
+    environment:
+      - VNC_PASSWORD=test
+      - HTTP_PASSWORD=test
+      - USER=browserUser
+      - PASSWORD=test
+      - DISPLAY=:1
+      - NODE_ENV=production
+      - REDIS_HOST=redis_data
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+      - HTTPS_PROXY=http://L1L50NIY9AC7:7rk4EwB5hQ@45.79.74.226:8838
+      - HTTP_PROXY=http://L1L50NIY9AC7:7rk4EwB5hQ@45.79.74.226:8838
+      - PROXY_PASSWORD=7rk4EwB5hQ
+      - PROXY_USERNAME=L1L50NIY9AC7
+      - NO_PROXY=localhost,127.0.0.1
+      - PROXY_MODEM_NUM=42
+      - no_proxy=localhost,127.0.0.1
+      - CELERY_BROKER_URL=redis://:eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81@redis:6379
+      - JOB_ID=1
+      - YT_VIDS_PER_TAB=2
+      - PLAYBACK_TIME=30
+      - PAID_BLOCKLIST="walnerlaw.com"
+      - NUM_OF_PROXIES=500
+      - TAG="test"
+      - ENV="DEV"
+      - COUNTRY_CODE="us",
+      - PROXY_ID=21
+    depends_on:
+      - redis
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    networks:
+      - chrome-network
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes:
+      - redis_data:/data
